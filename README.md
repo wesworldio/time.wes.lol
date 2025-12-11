@@ -1,10 +1,10 @@
 # Image and Video Similarity Matcher
 
-A cross-platform tool that finds similar images and video frames by comparing assets against training images in the search folder.
+A cross-platform tool that finds similar images and video frames by comparing assets against training images in the `data/search/` folder.
 
 ## How It Works
 
-1. **Training Data Loading**: The script loads all images from the `search/` folder and extracts visual features using ORB (Oriented FAST and Rotated BRIEF) feature detection.
+1. **Training Data Loading**: The script loads all images from the `data/search/` folder and extracts visual features using ORB (Oriented FAST and Rotated BRIEF) feature detection.
 
 2. **Feature Extraction**: For each search image, the script extracts keypoints and descriptors that represent distinctive visual patterns.
 
@@ -14,7 +14,7 @@ A cross-platform tool that finds similar images and video frames by comparing as
 
 4. **Matching Algorithm**: Uses FLANN (Fast Library for Approximate Nearest Neighbors) matcher with a ratio test to find good matches. A match score is calculated based on the ratio of good matches to total matches.
 
-5. **Results**: Matches are saved to the `results/` folder with filenames that include:
+5. **Results**: Matches are saved to the `data/results/` folder with filenames that include:
    - Original asset name
    - Match score
    - For video frames: frame number and timestamp
@@ -58,9 +58,9 @@ python3 find_similar.py
 
 ```
 .
-├── search/          # Training images (what to search for)
+├── data/search/     # Training images (what to search for)
 ├── assets/          # Images and videos to search through
-├── results/         # Output folder for matches
+├── data/results/    # Output folder for matches
 ├── find_similar.py  # Main script
 ├── requirements.txt # Python dependencies
 ├── Makefile         # Build commands
@@ -110,13 +110,13 @@ You can modify the script to adjust:
 - **Slow processing**: Increase `frame_interval` for videos or reduce `nfeatures` for faster processing
 - **Missing dependencies**: Run `make install` to ensure all packages are installed
 
-## Hosting the frame capture tool (GitHub Pages)
+## Hosting the capture tool (GitHub Pages)
 
-You can host `frame-capture/index.html` on GitHub Pages and point `time.wes.lol` to it.
+You can host `public/index.html` on GitHub Pages and point `time.wes.lol` to it.
 
 Steps:
 1. Add your repo to GitHub (if not already).
-2. Keep `index.html` in the repo root, and keep `assets/`, `results/`, and `search/` in the root.
+2. Keep `index.html` in the repo root, and keep `assets/`, `data/results/`, and `data/search/` in the repo.
 3. Create/keep the `CNAME` file with `time.wes.lol` in the repo root (already added).
 4. In GitHub: Settings → Pages → Source: deploy from `main` branch, `/ (root)`.
 5. Wait for the site to build; it will be available at `https://time.wes.lol/`.
@@ -125,27 +125,27 @@ Steps:
 
 Notes:
 - When hosted on GitHub Pages (HTTPS, same-origin), CORS/tainted canvas issues go away and the video and PNG loads work without using the file input.
-- Ensure `assets/wesjerryspringer.mov` and `results/*.png` are committed so the page can access them.
+- Ensure `assets/wesjerryspringer.mov` and `data/results/*.png` are committed so the page can access them.
 
 ### Results manifest for dynamic grid
-- The UI reads `results/manifest.json` to show matching frames.
+- The UI reads `data/results/**/manifest.json` to show matching frames.
 - Generate it after new matches: `make results-manifest`
-- Manifest is written to `results/manifest.json` (committed so Pages can serve it).
+- Manifest is written to `data/results/.../manifest.json` (committed so Pages can serve it).
 
-## Frame Capture Tool (file://)
+## Capture Tool (file://)
 
 A lightweight, offline HTML tool to grab frame crops for new training images.
 
-Location: `frame-capture/index.html`
+Location: `public/index.html`
 
 How to use:
-- Open the file locally in your browser: `file:///.../frame-capture/index.html`
+- Open the file locally in your browser: `file:///.../public/index.html`
 - Load a video file.
 - Enter a timestamp (seconds) and click “Go to time”, then “Capture current frame”.
 - Drag on the canvas to draw a crop box; click “Save crop” (or “Save full frame”).
-- Move the downloaded PNGs into the `search/` folder to train with them.
+- Move the downloaded PNGs into the `data/search/` folder to train with them.
 
 Notes:
 - This runs fully offline; it does not need a server.
-- Browsers may block direct writes to disk from `file://`. The tool downloads the PNG; just move it into `search/`.
+- Browsers may block direct writes to disk from `file://`. The tool downloads the PNG; just move it into `data/search/`.
 

@@ -1,5 +1,5 @@
 .ONESHELL:
-.PHONY: help install run clean venv frame-capture serve serve-bg results-manifest search-manifest
+.PHONY: help install run clean venv public serve serve-bg results-manifest search-manifest manifests all
 
 VENV = venv
 PYTHON = $(VENV)/bin/python3
@@ -11,11 +11,13 @@ help:
 	@echo "  make install  - Install Python dependencies"
 	@echo "  make run      - Clean results, run matcher, regenerate manifests"
 	@echo "  make clean    - Clean results folder"
-	@echo "  make frame-capture - Show path to the frame capture tool"
+	@echo "  make public  - Show path to the capture UI"
 	@echo "  make serve    - Serve the UI at http://localhost:8000/"
 	@echo "  make serve-bg - Start the UI server in background"
-	@echo "  make results-manifest - Generate results/manifest.json for the UI"
+	@echo "  make results-manifest - Generate data/results/.../manifest.json for the UI"
 	@echo "  make search-manifest - Generate search/manifest.json for the UI"
+	@echo "  make manifests - Generate both results and search manifests"
+	@echo "  make all      - Install deps, start server, run matcher pipeline"
 
 venv:
 	@if [ ! -d "$(VENV)" ]; then \
@@ -28,27 +30,27 @@ install: venv
 	@$(PYTHON) -m pip install --upgrade pip
 	@$(PYTHON) -m pip install -r requirements.txt
 
-run: install serve-bg clean
+run: venv clean
 	@echo "Running similarity matcher..."
 	@$(PYTHON) find_similar.py
 	@echo "Regenerating results manifest..."
-	@node frame-capture/build-results-manifest.js
+	@node public/build-results-manifest.js
 	@echo "Regenerating search manifest..."
-	@node frame-capture/build-search-manifest.js
+	@node public/build-search-manifest.js
 
 clean:
 	@echo "Cleaning results folder..."
-	@rm -rf results
-	@mkdir -p results
+	@rm -rf data/results
+	@mkdir -p data/results
 
-frame-capture:
+public:
 	@echo "Open this file in your browser:"
-	@echo "file://$(PWD)/frame-capture/index.html"
+	@echo "file://$(PWD)/public/index.html"
 
 serve:
 	@echo "Refreshing manifests..."
-	@node frame-capture/build-results-manifest.js
-	@node frame-capture/build-search-manifest.js
+	@node public/build-results-manifest.js
+	@node public/build-search-manifest.js
 	@echo "Serving at http://localhost:$(SERVER_PORT)/ (Ctrl+C to stop)..."
 	@python3 -m http.server $(SERVER_PORT)
 
@@ -62,12 +64,16 @@ serve-bg:
 		echo "Started server pid $$(cat $(SERVER_PID)) (log: /tmp/time-serve.log)"; \
 	fi
 	@echo "Refreshing manifests..."
-	@node frame-capture/build-results-manifest.js
-	@node frame-capture/build-search-manifest.js
+	@node public/build-results-manifest.js
+	@node public/build-search-manifest.js
 
 results-manifest:
-	@node frame-capture/build-results-manifest.js
+	@node public/build-results-manifest.js
 
 search-manifest:
-	@node frame-capture/build-search-manifest.js
+	@node public/build-search-manifest.js
+
+manifests: results-manifest search-manifest
+
+all: install serve-bg run
 

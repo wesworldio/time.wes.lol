@@ -10,7 +10,7 @@
   <main>
     <header>
       <h1>🎬 Frame Capture Tool</h1>
-      <p class="subtitle">Capture training data from <strong>wesjerryspringer.mov</strong></p>
+      <p class="subtitle">Capture training data</p>
     </header>
 
     <section class="steps">
@@ -20,7 +20,7 @@
       </div>
       <div class="step" data-step="2">
         <span class="step-number">2</span>
-        <span class="step-text">Navigate to frame</span>
+        <span class="step-text">Optional: Capture more frames</span>
       </div>
       <div class="step" data-step="3">
         <span class="step-number">3</span>
@@ -32,7 +32,7 @@
       </div>
     </section>
 
-    <section class="video-section">
+    <section class="video-section sticky-hero">
       <div class="video-container">
         <video id="video-player" controls playsinline crossorigin="anonymous">
           Your browser does not support the video tag.
@@ -59,10 +59,10 @@
       </div>
 
       <div class="file-selector">
-        <label for="video-input">📁 Load Video File (Required):</label>
+        <label for="video-input">📁 Load Video File (Optional):</label>
         <input type="file" id="video-input" accept="video/*" />
         <div class="file-hint">
-          <strong>⚠️ Important:</strong> Navigate to <code>assets/wesjerryspringer.mov</code> to load the video.
+          <strong>⚠️ Note:</strong> The remote video loads automatically. Use the picker only if you want to override or if the remote source fails.
         </div>
       </div>
     </section>
@@ -79,7 +79,7 @@
 
     <section class="capture-section">
       <div class="section-header">
-        <h2>Step 2: Capture Frame</h2>
+        <h2>Optional: Capture more frames</h2>
         <button id="capture-btn" class="primary-btn">📸 Capture Current Frame</button>
       </div>
       
@@ -104,7 +104,7 @@
           </button>
         </div>
         <p class="save-hint">
-          The image will download automatically. Move it to the <code>search/</code> folder for training.
+          The image will download automatically. Move it to the <code>data/search/</code> folder for training.
         </p>
       </div>
     </section>

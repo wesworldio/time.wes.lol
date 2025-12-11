@@ -3,8 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frame Capture - Training Data Annotator</title>
-  <link rel="stylesheet" href="frame-capture/style.css" />
+  <title>Time</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png" />
+  <link rel="manifest" href="assets/icons/site.webmanifest" />
+  <link rel="mask-icon" href="assets/icons/safari-pinned-tab.svg" color="#0c1d2f" />
+  <link rel="shortcut icon" href="assets/icons/favicon.ico" />
+  <meta name="msapplication-TileColor" content="#0c1d2f" />
+  <meta name="msapplication-config" content="assets/icons/browserconfig.xml" />
+  <meta name="theme-color" content="#0c1d2f" />
+  <link rel="stylesheet" href="public/style.css" />
 </head>
 <body>
   <main>
@@ -13,7 +22,7 @@
       <p class="subtitle">Capture training data from <strong>wesjerryspringer.mov</strong></p>
     </header>
 
-    <section class="steps">
+    <section class="steps" style="display: none;">
       <div class="step active" data-step="1">
         <span class="step-number">1</span>
         <span class="step-text">Load video</span>
@@ -57,20 +66,11 @@
           </div>
         </div>
       </div>
-
-    <section class="video-section">
-      <div class="file-selector">
-        <label for="video-input">📁 Load Video File (Required):</label>
-        <input type="file" id="video-input" accept="video/*" />
-        <div class="file-hint">
-          <strong>⚠️ Important:</strong> Navigate to <code>assets/wesjerryspringer.mov</code> to load the video.
-        </div>
-      </div>
     </section>
 
     <section class="results-section" id="results-section" style="display: none;">
       <div class="section-header">
-        <h2>🎯 Matching Frames Found</h2>
+        <h2>🎯 Matching Frames <span id="results-count" class="count-pill">0</span></h2>
         <button id="refresh-results-btn" class="secondary-btn">🔄 Refresh</button>
       </div>
       <div class="results-grid" id="results-grid">
@@ -80,7 +80,7 @@
 
     <section class="results-section" id="search-section" style="display: none;">
       <div class="section-header">
-        <h2>🧠 Training Images (search/)</h2>
+        <h2>🧠 Training Images <span id="search-count" class="count-pill">0</span></h2>
         <button id="refresh-search-btn" class="secondary-btn">🔄 Refresh</button>
       </div>
       <div class="results-grid" id="search-grid">
@@ -90,8 +90,8 @@
 
     <section class="capture-section">
       <div class="section-header">
-        <h2>Step 2: Capture Frame</h2>
-        <button id="capture-btn" class="primary-btn">📸 Capture Current Frame</button>
+        <h2>Capture More Training Images (Optional)</h2>
+        <button id="capture-btn" class="primary-btn">📸 Capture</button>
       </div>
       
       <div class="canvas-container">
@@ -100,12 +100,12 @@
           <canvas id="overlay-canvas"></canvas>
         </div>
         <div class="canvas-hint">
-          <p>💡 <strong>Step 3:</strong> Drag on the frame above to draw a box around the striped shirt</p>
+          <p>💡 Press the spacebar to pause, then drag on the frame above to draw a box around the striped shirt.</p>
         </div>
       </div>
 
       <div class="save-section">
-        <h3>Step 4: Save Training Image</h3>
+        <h3>Save Training Image</h3>
         <div class="save-buttons">
           <button id="save-crop-btn" class="save-btn">
             💾 Save Crop (Recommended)
@@ -115,7 +115,7 @@
           </button>
         </div>
         <p class="save-hint">
-          The image will download automatically. Move it to the <code>search/</code> folder for training.
+          The image will download automatically to your computer—move it to the <code>data/search/</code> folder for training.
         </p>
       </div>
     </section>
@@ -125,7 +125,7 @@
     </div>
   </main>
 
-  <script src="frame-capture/main.js"></script>
+  <script src="public/main.js"></script>
 </body>
 </html>
 

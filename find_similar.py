@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Cross-platform image and video similarity matcher.
-Searches for images similar to training data in search folder.
+Searches for images similar to training data in data/search folder.
 """
 
 import os
@@ -244,12 +244,45 @@ def process_video(asset_path: Path, search_images: List[Tuple[np.ndarray, str, n
     return saved_files
 
 
+def load_config(script_dir: Path) -> Optional[dict]:
+    """Load config.json to pick dataset-aware paths."""
+    config_path = script_dir / "config.json"
+    if not config_path.exists():
+        return None
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError as err:
+        print(f"Warning: Could not parse config.json ({err}). Falling back to defaults.")
+    except OSError as err:
+        print(f"Warning: Could not read config.json ({err}). Falling back to defaults.")
+    return None
+
+
+def pick_dataset(config: Optional[dict]) -> Optional[dict]:
+    """Select the default dataset (by id or first entry)."""
+    if not config or not isinstance(config, dict):
+        return None
+    datasets = config.get("datasets") or []
+    if not datasets:
+        return None
+    default_id = config.get("defaultId")
+    if default_id:
+        for dataset in datasets:
+            if dataset.get("id") == default_id:
+                return dataset
+    return datasets[0]
+
+
 def main():
     """Main function to process assets and find matches."""
     script_dir = Path(__file__).parent
-    search_dir = script_dir / "search"
+    config = load_config(script_dir)
+    dataset = pick_dataset(config) or {}
+    dataset_id = dataset.get("id", "default")
+    search_dir = script_dir / Path(dataset.get("searchDir", "data/search"))
     assets_dir = script_dir / "assets"
-    results_dir = script_dir / "results"
+    results_dir = script_dir / Path(dataset.get("resultsDir", "data/results"))
     manifest_path = results_dir / "manifest.json"
     
     if not search_dir.exists():
@@ -269,7 +302,8 @@ def main():
         print("Error: No search images found")
         sys.exit(1)
     
-    print(f"\nProcessing assets from: {assets_dir}")
+    print(f"\nProcessing dataset '{dataset_id}'")
+    print(f"Processing assets from: {assets_dir}")
     
     image_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif', '.webp'}
     video_extensions = {'.mov', '.mp4', '.avi', '.mkv', '.flv', '.wmv', '.webm', '.m4v'}

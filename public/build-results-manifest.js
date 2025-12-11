@@ -1,14 +1,28 @@
 #!/usr/bin/env node
 /**
  * Build a manifest of matching result frames for the client UI.
- * Writes to ../results/manifest.json
+ * Writes to ../data/results/.../manifest.json
  */
 
 const fs = require("fs");
 const path = require("path");
 
-const resultsDir = path.join(__dirname, "..", "results");
-const manifestPath = path.join(resultsDir, "manifest.json");
+const rootDir = path.join(__dirname, "..");
+const configPath = path.join(rootDir, "config.json");
+
+function loadDatasets() {
+  try {
+    const raw = fs.readFileSync(configPath, "utf8");
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed.datasets) && parsed.datasets.length) {
+      return parsed.datasets;
+    }
+  } catch (err) {
+    console.warn("No config.json found or could not parse it. Using default results directory.", err.message);
+  }
+
+  return [{ id: "default", resultsDir: "data/results" }];
+}
 
 function parseTimecode(str) {
   const match = str.match(/(\d+)m(\d+)s(\d+)ms/);
@@ -19,13 +33,17 @@ function parseTimecode(str) {
   return minutes * 60 + seconds + milliseconds / 1000;
 }
 
-function buildManifest() {
-  if (!fs.existsSync(resultsDir)) {
-    throw new Error(`Results directory not found: ${resultsDir}`);
+function buildManifestForDataset(dataset) {
+  const dir = path.join(rootDir, dataset.resultsDir || "results");
+  const manifestPath = path.join(dir, "manifest.json");
+
+  if (!fs.existsSync(dir)) {
+    console.warn(`Results directory not found for dataset "${dataset.id}": ${dir}`);
+    return;
   }
 
   const files = fs
-    .readdirSync(resultsDir)
+    .readdirSync(dir)
     .filter((f) => f.toLowerCase().endsWith(".png"))
     .sort();
 
@@ -56,6 +74,11 @@ function buildManifest() {
 
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
   console.log(`Wrote manifest with ${entries.length} entries to ${manifestPath}`);
+}
+
+function buildManifest() {
+  const datasets = loadDatasets();
+  datasets.forEach(buildManifestForDataset);
 }
 
 buildManifest();

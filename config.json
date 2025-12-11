@@ -1,0 +1,15 @@
+{
+  "defaultId": "jerry",
+  "datasets": [
+    {
+      "id": "jerry",
+      "label": "Jerry Springer",
+      "video": {
+        "remote": "https://video.twimg.com/amplify_video/1998987907793612800/vid/avc1/720x528/b9VBdK-5KUxFLzII.mp4?tag=21",
+        "fallback": "assets/wesjerryspringer.mov"
+      },
+      "resultsDir": "data/results/jerry",
+      "searchDir": "data/search/jerry"
+    }
+  ]
+}
