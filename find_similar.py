@@ -6,6 +6,7 @@ Searches for images similar to training data in search folder.
 
 import os
 import sys
+import json
 import cv2
 import numpy as np
 from pathlib import Path
@@ -99,8 +100,58 @@ def load_search_images(search_dir: Path) -> List[Tuple[np.ndarray, str, np.ndarr
     return search_images
 
 
+def _parse_timecode(timecode: str) -> Optional[float]:
+    match = re.match(r"(\d+)m(\d+)s(\d+)ms", timecode)
+    if not match:
+        return None
+    minutes, seconds, millis = match.groups()
+    return int(minutes) * 60 + int(seconds) + int(millis) / 1000.0
+
+
+def _parse_frame_metadata(filename: str) -> Optional[dict]:
+    """Extract frameNumber/timecode/seconds from a result filename."""
+    match = re.search(r"frame_(\d+)_t(\d+m\d+s\d+ms)", filename)
+    if not match:
+        return None
+    frame_number = int(match.group(1))
+    timecode = match.group(2)
+    seconds = _parse_timecode(timecode)
+    return {
+        "filename": filename,
+        "frameNumber": frame_number,
+        "timecode": timecode,
+        "seconds": seconds,
+    }
+
+
+def append_to_manifest(manifest_path: Path, filename: str) -> None:
+    """Append a single result entry to manifest.json for live progress updates."""
+    meta = _parse_frame_metadata(filename)
+    if not meta:
+        return  # skip non-frame files
+
+    manifest = {"generatedAt": "live", "files": []}
+    if manifest_path.exists():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass  # fall back to fresh manifest
+
+    files = manifest.get("files") or []
+    # avoid duplicates
+    if any((isinstance(entry, dict) and entry.get("filename") == filename) or entry == filename for entry in files):
+        return
+
+    files.append(meta)
+    manifest["files"] = files
+    manifest["count"] = len(files)
+    manifest["generatedAt"] = "live"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+
 def process_image(asset_path: Path, search_images: List[Tuple[np.ndarray, str, np.ndarray]], 
-                  results_dir: Path, threshold: float = 0.15) -> List[str]:
+                  results_dir: Path, threshold: float = 0.15, manifest_path: Optional[Path] = None) -> List[str]:
     """Process a single image asset and find matches."""
     saved_files = []
     img = cv2.imread(str(asset_path))
@@ -128,13 +179,15 @@ def process_image(asset_path: Path, search_images: List[Tuple[np.ndarray, str, n
                 
                 cv2.imwrite(str(output_path), img)
                 saved_files.append(str(output_path))
+                if manifest_path:
+                    append_to_manifest(manifest_path, output_path.name)
                 print(f"Match found: {asset_path.name} matches {search_name} (score: {match_score:.3f})")
     
     return saved_files
 
 
 def process_video(asset_path: Path, search_images: List[Tuple[np.ndarray, str, np.ndarray]], 
-                  results_dir: Path, threshold: float = 0.12, frame_interval: int = 3) -> List[str]:
+                  results_dir: Path, threshold: float = 0.12, frame_interval: int = 3, manifest_path: Optional[Path] = None) -> List[str]:
     """Process a video asset and find matching frames with timestamps."""
     saved_files = []
     cap = cv2.VideoCapture(str(asset_path))
@@ -181,6 +234,8 @@ def process_video(asset_path: Path, search_images: List[Tuple[np.ndarray, str, n
                             
                             cv2.imwrite(str(output_path), frame)
                             saved_files.append(str(output_path))
+                            if manifest_path:
+                                append_to_manifest(manifest_path, output_path.name)
                             print(f"Match found: Frame {frame_number} ({time_str}) matches {search_name} (score: {match_score:.3f})")
         
         frame_number += 1
@@ -195,6 +250,7 @@ def main():
     search_dir = script_dir / "search"
     assets_dir = script_dir / "assets"
     results_dir = script_dir / "results"
+    manifest_path = results_dir / "manifest.json"
     
     if not search_dir.exists():
         print(f"Error: Search directory not found: {search_dir}")
@@ -226,12 +282,12 @@ def main():
             
             if ext in image_extensions:
                 print(f"\nProcessing image: {asset_path.name}")
-                matches = process_image(asset_path, search_images, results_dir)
+                matches = process_image(asset_path, search_images, results_dir, manifest_path=manifest_path)
                 total_matches += len(matches)
             
             elif ext in video_extensions:
                 print(f"\nProcessing video: {asset_path.name}")
-                matches = process_video(asset_path, search_images, results_dir)
+                matches = process_video(asset_path, search_images, results_dir, manifest_path=manifest_path)
                 total_matches += len(matches)
     
     print(f"\n{'='*60}")
