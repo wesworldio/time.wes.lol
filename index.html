@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frame Capture - Training Data Annotator</title>
+  <link rel="stylesheet" href="frame-capture/style.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>🎬 Frame Capture Tool</h1>
+      <p class="subtitle">Capture training data from <strong>wesjerryspringer.mov</strong></p>
+    </header>
+
+    <section class="steps">
+      <div class="step active" data-step="1">
+        <span class="step-number">1</span>
+        <span class="step-text">Load video</span>
+      </div>
+      <div class="step" data-step="2">
+        <span class="step-number">2</span>
+        <span class="step-text">Navigate to frame</span>
+      </div>
+      <div class="step" data-step="3">
+        <span class="step-number">3</span>
+        <span class="step-text">Draw crop box</span>
+      </div>
+      <div class="step" data-step="4">
+        <span class="step-number">4</span>
+        <span class="step-text">Save training image</span>
+      </div>
+    </section>
+
+    <section class="video-section">
+      <div class="video-container">
+        <video id="video-player" controls playsinline crossorigin="anonymous">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay" id="video-overlay">
+          <div class="timestamp-display" id="timestamp-display">00:00 / 00:00</div>
+        </div>
+      </div>
+
+      <div class="video-controls">
+        <div class="control-group">
+          <button id="play-pause-btn" class="control-btn" title="Play/Pause">
+            <span id="play-icon">▶</span>
+          </button>
+          <button id="rewind-btn" class="control-btn" title="Rewind 5s">⏪ 5s</button>
+          <button id="forward-btn" class="control-btn" title="Forward 5s">⏩ 5s</button>
+        </div>
+        <div class="seek-container">
+          <input type="range" id="seek-bar" min="0" max="100" value="0" step="0.1" />
+          <div class="time-display">
+            <span id="current-time">00:00</span> / <span id="duration">00:00</span>
+          </div>
+        </div>
+      </div>
+
+    <section class="video-section">
+      <div class="file-selector">
+        <label for="video-input">📁 Load Video File (Required):</label>
+        <input type="file" id="video-input" accept="video/*" />
+        <div class="file-hint">
+          <strong>⚠️ Important:</strong> Navigate to <code>assets/wesjerryspringer.mov</code> to load the video.
+        </div>
+      </div>
+    </section>
+
+    <section class="results-section" id="results-section" style="display: none;">
+      <div class="section-header">
+        <h2>🎯 Matching Frames Found</h2>
+        <button id="refresh-results-btn" class="secondary-btn">🔄 Refresh</button>
+      </div>
+      <div class="results-grid" id="results-grid">
+        <div class="loading-results">Loading matches...</div>
+      </div>
+    </section>
+
+    <section class="results-section" id="search-section" style="display: none;">
+      <div class="section-header">
+        <h2>🧠 Training Images (search/)</h2>
+        <button id="refresh-search-btn" class="secondary-btn">🔄 Refresh</button>
+      </div>
+      <div class="results-grid" id="search-grid">
+        <div class="loading-results">Loading training images...</div>
+      </div>
+    </section>
+
+    <section class="capture-section">
+      <div class="section-header">
+        <h2>Step 2: Capture Frame</h2>
+        <button id="capture-btn" class="primary-btn">📸 Capture Current Frame</button>
+      </div>
+      
+      <div class="canvas-container">
+        <div class="canvas-wrapper">
+          <canvas id="frame-canvas"></canvas>
+          <canvas id="overlay-canvas"></canvas>
+        </div>
+        <div class="canvas-hint">
+          <p>💡 <strong>Step 3:</strong> Drag on the frame above to draw a box around the striped shirt</p>
+        </div>
+      </div>
+
+      <div class="save-section">
+        <h3>Step 4: Save Training Image</h3>
+        <div class="save-buttons">
+          <button id="save-crop-btn" class="save-btn">
+            💾 Save Crop (Recommended)
+          </button>
+          <button id="save-full-btn" class="save-btn secondary">
+            📄 Save Full Frame
+          </button>
+        </div>
+        <p class="save-hint">
+          The image will download automatically. Move it to the <code>search/</code> folder for training.
+        </p>
+      </div>
+    </section>
+
+    <div class="info-panel" id="info-panel">
+      <div id="video-info">No video loaded</div>
+    </div>
+  </main>
+
+  <script src="frame-capture/main.js"></script>
+</body>
+</html>
+
